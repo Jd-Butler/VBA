@@ -1,0 +1,11 @@
+Function CollectionContains(myCol As Collection, checkVal As Variant) As Boolean
+    On Error Resume Next
+    CollectionContains = False
+    Dim it As Variant
+    For Each it In myCol
+        If it = checkVal Then
+            CollectionContains = True
+            Exit Function
+        End If
+    Next
+End Function
