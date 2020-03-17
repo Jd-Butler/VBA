@@ -1,7 +1,0 @@
-Function HasKey(coll As Collection, strKey As String) As Boolean
-    Dim var As Variant
-    On Error Resume Next
-    var = coll(strKey)
-    HasKey = (Err.Number = 0)
-    Err.Clear
-End Function
