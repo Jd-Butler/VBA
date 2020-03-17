@@ -1,0 +1,2 @@
+lRow = Cells(Rows.Count, 1).End(xlUp).Row
+lCol = Cells(1, Columns.Count).End(xlToLeft).Column
