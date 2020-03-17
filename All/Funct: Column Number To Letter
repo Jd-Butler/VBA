@@ -1,0 +1,3 @@
+Public Function ColumnLetter(ColumnNumber As Long) As String
+  ColumnLetter = Replace(Cells(1, ColumnNumber).Address(0, 0), 1, "")
+End Function
