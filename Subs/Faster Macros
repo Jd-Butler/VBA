@@ -1,0 +1,12 @@
+Sub FasterMacros(ByVal Toggle As Boolean)
+
+' To activate: Call FasterMacros(True)
+' To stop: Call FasterMacros(False)
+' Best practice is to ensure it is disabled after an error
+
+Application.ScreenUpdating = Not Toggle
+Application.EnableEvents = Not Toggle
+Application.DisplayAlerts = Not Toggle
+Application.Calculation = IIf(Toggle, xlCalculationManual, xlCalculationAutomatic)
+
+End Sub
