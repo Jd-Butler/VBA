@@ -1,0 +1,39 @@
+Sub MassReplaceSingleValue()
+Dim Cell As Range, ReplaceRange As Range
+Dim ReplaceChars As String, ReplaceWith As String, ReplaceVal As String
+Dim I As Integer
+
+On Error GoTo handler:
+
+ReplaceChars = Application.InputBox("Enter the characters you would like to replace:", "Values To Replace", "~!@#$%^&*()-=_+"":;'<>?", Type:=2)
+ReplaceWith = Application.InputBox("Enter the character(s) you would like to replace the valus with:", "Replace Values With", Type:=2)
+Set ReplaceRange = Application.InputBox("Select the range to replace values in:", , Selection.Address, Type:=8)
+
+Call FasterMacros(True) ' Optional but recommended
+
+
+For I = 1 To Len(ReplaceChars)
+    ReplaceVal = Mid(ReplaceChars, I, 1)
+    If ReplaceVal = "*" Or ReplaceVal = "?" Then
+        ReplaceVal = "~" & ReplaceVal
+    End If
+    ReplaceRange.Replace ReplaceVal, ReplaceWith, xlPart, xlByRows, True, , False, False
+Next I
+
+handler:
+
+Call FasterMacros(False) ' Optional but recommended
+
+End Sub
+
+Sub FasterMacros(ByVal Toggle As Boolean)
+' To activate: Call FasterMacros(True)
+' To stop: Call FasterMacros(False)
+' Best practice is to ensure it is disabled after an error
+
+Application.ScreenUpdating = Not Toggle
+Application.EnableEvents = Not Toggle
+Application.DisplayAlerts = Not Toggle
+Application.Calculation = IIf(Toggle, xlCalculationManual, xlCalculationAutomatic)
+
+End Sub
