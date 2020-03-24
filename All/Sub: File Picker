@@ -1,0 +1,16 @@
+Sub getfile()
+
+Dim filepath As String
+
+With Application.FileDialog(msoFileDialogFilePicker)
+    .AllowMultiSelect = False
+    .Title = "Select File"
+    .ButtonName = "Confirm file"
+    If .Show = -1 Then
+        filepath = .SelectedItems(1)
+    Else
+        Exit Sub
+    End If
+End With
+
+End Sub
