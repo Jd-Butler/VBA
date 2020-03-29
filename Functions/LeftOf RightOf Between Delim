@@ -1,0 +1,34 @@
+Option Explicit
+
+Public Function RightOf(CellRef As String, delim As String, instance As Long) As Variant
+Dim locinstance As Long: locinstance = FindInstance(delim, CellRef, instance)
+RightOf = Right(CellRef, Len(CellRef) - locinstance)
+End Function
+
+Public Function LeftOf(CellRef As String, delim As String, instance As Long) As Variant
+Dim locinstance As Long: locinstance = FindInstance(delim, CellRef, instance) - 1
+LeftOf = Left(CellRef, locinstance)
+End Function
+
+Public Function Between(CellRef As String, DelimOne As String, DelimOneInst As Long, DelimTwo As String, DelimTwoInst As Long) As Variant
+Dim LocDelimOne As Long: LocDelimOne = FindInstance(DelimOne, CellRef, DelimOneInst) + 1
+Dim LocDelimTwo As Long: LocDelimTwo = FindInstance(DelimTwo, CellRef, DelimTwoInst)
+Between = Mid(CellRef, LocDelimOne, (LocDelimTwo - LocDelimOne))
+End Function
+
+
+Public Function FindInstance(What As String, where As String, instance As Long) As Long
+Dim i As Long, instcount As Long
+instcount = 0
+
+For i = 1 To Len(where)
+    If Mid(where, i, 1) = What Then
+        instcount = instcount + 1
+            If instcount = instance Then
+                FindInstance = i
+                Exit Function
+            End If
+    End If
+Next i
+
+End Function
