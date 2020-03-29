@@ -1,0 +1,15 @@
+Public Function FindInstance(What As String, where As String, instance As Long) As Long
+Dim i As Long, instcount As Long
+instcount = 0
+
+For i = 1 To Len(where)
+    If Mid(where, i, 1) = What Then
+        instcount = instcount + 1
+            If instcount = instance Then
+                FindInstance = i
+                Exit Function
+            End If
+    End If
+Next i
+
+End Function
