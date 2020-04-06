@@ -45,7 +45,7 @@ For i = 1 To UBound(arrChoice)
     'Define Results Array
     arrResults(i + 1, 1) = arrChoice(i, 1)
     'Loop through choices to find best choice
-    For intChoice = 3 To 5 Step 1
+    For intChoice = 3 To (UBound(arrChoice, 2)) Step 1
     'Define Current Shift Choice
     CurrentShift = arrChoice(i, intChoice)
         'Loop through shifts and their capacity to find availability
