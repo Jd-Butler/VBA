@@ -37,11 +37,13 @@ arrShifts = tblShifts.DataBodyRange
 
 
 'Populate Results Table
-ReDim arrResults(1 To UBound(arrChoice), 1 To 2)
+ReDim arrResults(1 To UBound(arrChoice) + 1, 1 To 2)
+arrResults(1, 1) = "Rep Name"
+arrResults(1, 2) = "Shift Assigned"
 'Loop Through Reps Choices
 For i = 1 To UBound(arrChoice)
     'Define Results Array
-    arrResults(i, 1) = arrChoice(i, 1)
+    arrResults(i + 1, 1) = arrChoice(i, 1)
     'Loop through choices to find best choice
     For intChoice = 3 To 5 Step 1
     'Define Current Shift Choice
@@ -53,7 +55,7 @@ For i = 1 To UBound(arrChoice)
                 'If the shift has capacity then proceed
                 If arrShifts(j, 2) > 0 Then
                     arrShifts(j, 2) = arrShifts(j, 2) - 1
-                    arrResults(i, 2) = CurrentShift
+                    arrResults(i + 1, 2) = CurrentShift
                     'If capacity is found don't continue the loop go to the next rep.
                     GoTo nextrep:
                 End If
