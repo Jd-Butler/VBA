@@ -7,8 +7,8 @@ Sub ShiftBid()
 '   a. Shifts lists the potential shifts offered (in the same format as the reps choices)
 '   b. Capacity lists the maximum number of reps that can be in that shift
 '2. Table 2 named "VBAChoicesPivoted" This table will have a variable number of columns but they will be structured:
-'   a. First column is the rep name
-'   b. Second column is the rep rank
+'   a. First column is the rep name the header should be "Name"
+'   b. Second column is the rep rank the header should be "Rank"
 '   c. Columns 3-x are the reps choices of shifts where the further left the column is the more prefered the shift is.
 '--------------------------------------------------------------------------------------------------------------------
 'Define Scope
