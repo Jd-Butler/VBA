@@ -1,0 +1,7 @@
+Sub FindOrMakeDir()
+If Dir("C:\Excel2", vbDirectory) = "" Then
+    MkDir Path:="C:\Excel2"
+Else
+    'the directory exists do whatever you want
+End If
+End Sub
