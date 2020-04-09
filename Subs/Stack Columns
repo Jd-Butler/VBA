@@ -4,7 +4,7 @@ Dim r As Long, c As Long, i As Long: i = 1
 
 On Error GoTo handler:
 
-rngFromArr = Application.InputBox("Select range of columns to unstack", "Select Range", Selection.CurrentRegion.Address, Type:=8).Value
+rngFromArr = Application.InputBox("Select range of columns to stack", "Select Range", Selection.CurrentRegion.Address, Type:=8).Value
 ReDim rngToArr(1 To (UBound(rngFromArr, 2) * UBound(rngFromArr, 1)), 0) As Variant
 
 For r = LBound(rngFromArr, 2) To UBound(rngFromArr, 2)
