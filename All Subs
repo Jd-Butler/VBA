@@ -1,0 +1,273 @@
+Option Explicit
+
+Sub FindOrMakeDir()
+If Dir("C:\Excel2", vbDirectory) = "" Then
+    MkDir Path:="C:\Excel2"
+Else
+    'the directory exists do whatever you want
+End If
+End Sub
+
+Sub ExtractUniquesAndCountThem()
+Dim dict As Object: Set dict = CreateObject("Scripting.Dictionary")
+Dim Rng As Range, Cell As Range
+
+dict.CompareMode = vbTextCompare
+
+Set Rng = Application.InputBox("Select Range of list values", "Select Range", Selection.Address, , , , , 8)
+
+dict.Add key:="Item", Item:="Count"
+For Each Cell In Rng
+    If dict.Exists(Cell.Value) = True Then
+        dict(Cell.Value) = dict(Cell.Value) + 1
+    Else
+        dict.Add key:=(Cell.Value), Item:=1
+    End If
+Next Cell
+
+
+Set Rng = Application.InputBox("Select range to place results", "Select Range", , , , , , 8)
+
+Rng.Resize(dict.Count, 1).Value = Application.Transpose(dict.Keys)
+Rng.Offset(0, 1).Resize(dict.Count, 1).Value = Application.Transpose(dict.Items)
+
+End Sub
+
+Sub FasterMacros(ByVal Toggle As Boolean)
+
+' To activate: Call FasterMacros(True)
+' To stop: Call FasterMacros(False)
+' Best practice is to ensure it is disabled after an error
+
+Application.ScreenUpdating = Not Toggle
+Application.EnableEvents = Not Toggle
+Application.DisplayAlerts = Not Toggle
+Application.Calculation = IIf(Toggle, xlCalculationManual, xlCalculationAutomatic)
+
+End Sub
+
+Sub getfile()
+
+Dim filepath As String
+
+With Application.FileDialog(msoFileDialogFilePicker)
+    .AllowMultiSelect = False
+    .Title = "Select File"
+    .ButtonName = "Confirm file"
+    If .Show = -1 Then
+        filepath = .SelectedItems(1)
+    Else
+        Exit Sub
+    End If
+End With
+
+End Sub
+Sub FillDown()
+Dim Rng As Range, Cell As Range
+
+On Error GoTo handler:
+
+Set Rng = Application.InputBox("Select range to fill down", "Select Range", Selection.Address, Type:=8)
+
+Call FasterMacros(True) ' Optional but recommended
+
+For Each Cell In Rng
+    On Error Resume Next:
+    If Len(Cell.Value) = 0 Then
+        Cell.Value = Cell.Offset(-1, 0).Value
+    End If
+Next Cell
+
+handler:
+Call FasterMacros(False) ' Optional but recommended
+
+End Sub
+
+Sub MassReplaceSingleValue()
+Dim Cell As Range, ReplaceRange As Range
+Dim ReplaceChars As String, ReplaceWith As String, ReplaceVal As String
+Dim i As Integer
+
+On Error GoTo handler:
+
+ReplaceChars = Application.InputBox("Enter the characters you would like to replace:", "Values To Replace", "~!@#$%^&*()-=_+"":;'<>?", Type:=2)
+ReplaceWith = Application.InputBox("Enter the character(s) you would like to replace the valus with:", "Replace Values With", Type:=2)
+Set ReplaceRange = Application.InputBox("Select the range to replace values in:", , Selection.Address, Type:=8)
+
+Call FasterMacros(True) ' Optional but recommended
+
+
+For i = 1 To Len(ReplaceChars)
+    ReplaceVal = Mid(ReplaceChars, i, 1)
+    If ReplaceVal = "*" Or ReplaceVal = "?" Then
+        ReplaceVal = "~" & ReplaceVal
+    End If
+    ReplaceRange.Replace ReplaceVal, ReplaceWith, xlPart, xlByRows, True, , False, False
+Next i
+
+handler:
+
+Call FasterMacros(False) ' Optional but recommended
+
+End Sub
+
+Sub LastFirstMidToFirstMidLast()
+Dim Rng As Range, Cell As Range
+Dim Delim As String, LastName As String, FirstMidName As String
+
+On Error GoTo handler:
+
+Delim = Application.InputBox("Enter the delimiter between the last name and first name", "Enter Delimiter", ",", Type:=2)
+Set Rng = Application.InputBox("Select the range to modify", "Select Range", Selection.Address, Type:=8)
+
+Call FasterMacros(True) ' Optional but recommended
+
+For Each Cell In Rng
+    LastName = Trim(Left(Cell.Value, InStr(Cell, Delim) - 1))
+    FirstMidName = Trim(Right(Cell.Value, (Len(Cell.Value) - Len(LastName) - 1)))
+    Cell.Value = FirstMidName & " " & LastName
+Next Cell
+
+handler:
+Call FasterMacros(False) ' Optional but recommended
+
+End Sub
+
+Sub FirstMidLastToLastFirstMid()
+Dim Rng As Range, Cell As Range
+Dim LastName As String, FirstMidName As String
+
+On Error GoTo handler:
+
+Set Rng = Application.InputBox("Select the range to modify", "Select Range", Selection.Address, Type:=8)
+
+Call FasterMacros(True) ' Optional but recommended
+
+For Each Cell In Rng
+    LastName = Trim(Right(Cell.Value, (Len(Cell.Value) - InStrRev(Cell.Value, " "))))
+    FirstMidName = Trim(Left(Cell.Value, (InStrRev(Cell.Value, " "))))
+    Cell.Value = LastName & ", " & FirstMidName
+Next Cell
+
+handler:
+Call FasterMacros(False) ' Optional but recommended
+
+End Sub
+
+Sub StackColumns()
+Dim rngFromArr As Variant, rngToArr() As Variant
+Dim r As Long, c As Long, i As Long: i = 1
+
+On Error GoTo handler:
+
+rngFromArr = Application.InputBox("Select range of columns to stack", "Select Range", Selection.CurrentRegion.Address, Type:=8).Value
+ReDim rngToArr(1 To (UBound(rngFromArr, 2) * UBound(rngFromArr, 1)), 0) As Variant
+
+For r = LBound(rngFromArr, 2) To UBound(rngFromArr, 2)
+    For c = LBound(rngFromArr, 1) To UBound(rngFromArr, 1)
+        rngToArr(i, 0) = rngFromArr(c, r)
+        i = i + 1
+    Next c
+Next r
+
+Application.InputBox("Select range to start stacked column.", "Select Range", Selection.CurrentRegion.Address, Type:=8).Resize(UBound(rngToArr, 1)) = rngToArr
+
+handler:
+
+End Sub
+
+Sub ShiftBid()
+'--------------------------------------------------------------------------------------------------------------------
+'Prereqs:
+'You must redefine the ws name to the name of your ws with the two tables below.
+'Requires two input tables:
+'1. Table 1 named "Shifts" This table will have two columns "Shift" and "Capacity" where
+'   a. Shifts lists the potential shifts offered (in the same format as the reps choices)
+'   b. Capacity lists the maximum number of reps that can be in that shift
+'2. Table 2 named "VBAChoicesPivoted" This table will have a variable number of columns but they will be structured:
+'   a. First column is the rep name the header should be "Name"
+'   b. Second column is the rep rank the header should be "Rank"
+'   c. Columns 3-x are the reps choices of shifts where the further left the column is the more prefered the shift is.
+'--------------------------------------------------------------------------------------------------------------------
+'Define Scope
+Dim wb As Workbook: Set wb = ActiveWorkbook
+Dim ws As Worksheet: Set ws = wb.Sheets("Data")
+'Define Tables
+Dim tblChoices As ListObject: Set tblChoices = ws.ListObjects("VBAChoicesPivoted")
+Dim tblShifts As ListObject: Set tblShifts = ws.ListObjects("Shifts")
+'Define Arrays
+Dim arrChoice As Variant, arrShifts As Variant, arrResults As Variant
+'Define Vars
+Dim i As Integer, j As Integer, intChoice As Integer
+Dim CurrentShift As String
+
+'Sort Choices table
+With ws.ListObjects("VBAChoicesPivoted").Sort
+    .SortFields.Clear
+    .SortFields.Add key:=Range("VBAChoicesPivoted[Rank]"), SortOn:=xlSortOnValues, Order:=xlAscending
+    .Header = xlYes
+    .Apply
+End With
+
+'Set Arrays
+arrChoice = tblChoices.DataBodyRange
+arrShifts = tblShifts.DataBodyRange
+
+
+'Populate Results Table
+ReDim arrResults(1 To UBound(arrChoice) + 1, 1 To 2)
+arrResults(1, 1) = "Rep Name"
+arrResults(1, 2) = "Shift Assigned"
+'Loop Through Reps Choices
+For i = 1 To UBound(arrChoice)
+    'Define Results Array
+    arrResults(i + 1, 1) = arrChoice(i, 1)
+    'Loop through choices to find best choice
+    For intChoice = 3 To (UBound(arrChoice, 2)) Step 1
+    'Define Current Shift Choice
+    CurrentShift = arrChoice(i, intChoice)
+        'Loop through shifts and their capacity to find availability
+        For j = 1 To UBound(arrShifts)
+            'If the shift in the array is equal to the current choice then proceed
+            If arrShifts(j, 1) = CurrentShift Then
+                'If the shift has capacity then proceed
+                If arrShifts(j, 2) > 0 Then
+                    arrShifts(j, 2) = arrShifts(j, 2) - 1
+                    arrResults(i + 1, 2) = CurrentShift
+                    'If capacity is found don't continue the loop go to the next rep.
+                    GoTo nextrep:
+                End If
+            End If
+        Next j
+    Next intChoice
+nextrep:
+Next i
+
+'Print the array to a range
+Application.InputBox("Select Range to place the results", "Select Range", Type:=8).Resize((UBound(arrResults, 1)), 2) = arrResults
+
+End Sub
+
+Sub Breaker()
+Dim i As Integer, j As Integer, k As Integer
+Dim l As Integer, m As Integer, n As Integer
+Dim i1 As Integer, i2 As Integer, i3 As Integer
+Dim i4 As Integer, i5 As Integer, i6 As Integer
+On Error Resume Next
+For i = 65 To 66: For j = 65 To 66: For k = 65 To 66
+For l = 65 To 66: For m = 65 To 66: For i1 = 65 To 66
+For i2 = 65 To 66: For i3 = 65 To 66: For i4 = 65 To 66
+For i5 = 65 To 66: For i6 = 65 To 66: For n = 32 To 126
+ActiveSheet.Unprotect Chr(i) & Chr(j) & Chr(k) & _
+Chr(l) & Chr(m) & Chr(i1) & Chr(i2) & Chr(i3) & _
+Chr(i4) & Chr(i5) & Chr(i6) & Chr(n)
+If ActiveSheet.ProtectContents = False Then
+MsgBox "One usable password is " & Chr(i) & Chr(j) & _
+Chr(k) & Chr(l) & Chr(m) & Chr(i1) & Chr(i2) & _
+Chr(i3) & Chr(i4) & Chr(i5) & Chr(i6) & Chr(n)
+Exit Sub
+End If
+Next: Next: Next: Next: Next: Next
+Next: Next: Next: Next: Next: Next
+End Sub
+
