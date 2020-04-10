@@ -1,0 +1,60 @@
+Option Explicit
+
+Function CollectionContains(myCol As Collection, checkVal As Variant) As Boolean
+    On Error Resume Next
+    CollectionContains = False
+    Dim it As Variant
+    For Each it In myCol
+        If it = checkVal Then
+            CollectionContains = True
+            Exit Function
+        End If
+    Next
+End Function
+
+Function HasKey(coll As Collection, strKey As String) As Boolean
+    Dim var As Variant
+    On Error Resume Next
+    var = coll(strKey)
+    HasKey = (Err.Number = 0)
+    Err.Clear
+End Function
+
+Public Function ColumnLetter(ColumnNumber As Long) As String
+  ColumnLetter = Replace(Cells(1, ColumnNumber).Address(0, 0), 1, "")
+End Function
+
+Public Function FindInstance(What As String, where As String, instance As Long) As Long
+Dim i As Long, instcount As Long
+instcount = 0
+
+For i = 1 To Len(where)
+    If Mid(where, i, 1) = What Then
+        instcount = instcount + 1
+            If instcount = instance Then
+                FindInstance = i
+                Exit Function
+            End If
+    End If
+Next i
+
+End Function
+
+Public Function RightOf(CellRef As String, Delim As String, instance As Long) As Variant
+Dim locinstance As Long: locinstance = FindInstance(Delim, CellRef, instance)
+RightOf = Right(CellRef, Len(CellRef) - locinstance)
+End Function
+
+Public Function LeftOf(CellRef As String, Delim As String, instance As Long) As Variant
+Dim locinstance As Long: locinstance = FindInstance(Delim, CellRef, instance) - 1
+LeftOf = Left(CellRef, locinstance)
+End Function
+
+Public Function Between(CellRef As String, DelimOne As String, DelimOneInst As Long, DelimTwo As String, DelimTwoInst As Long) As Variant
+Dim LocDelimOne As Long: LocDelimOne = FindInstance(DelimOne, CellRef, DelimOneInst) + 1
+Dim LocDelimTwo As Long: LocDelimTwo = FindInstance(DelimTwo, CellRef, DelimTwoInst)
+Between = Mid(CellRef, LocDelimOne, (LocDelimTwo - LocDelimOne))
+End Function
+
+
+
