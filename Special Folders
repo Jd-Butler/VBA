@@ -1,0 +1,17 @@
+'http://learnexcelmacro.com/wp/2012/12/get-special-folder-path-excel-macro/
+
+Sub GetSpecialFolderPath()
+Dim objSFolders As Object
+Set objSFolders = CreateObject("WScript.Shell").SpecialFolders
+Sheets("Sheet1").Activate
+With Sheets("Sheet1")
+.Range("B2").Value = "My Document Path is:-         " & objSFolders("mydocuments")
+.Range("B3").Value = "Desktop Path is:-             " & objSFolders("desktop")
+.Range("B4").Value = "All User Desktop Path is:-    " & objSFolders("allusersdesktop")
+.Range("B5").Value = "Recent Documents Path is:-    " & objSFolders("recent")
+.Range("B6").Value = "Favorites Document Path is:-  " & objSFolders("favorites")
+.Range("B7").Value = "Programs Path is:-            " & objSFolders("programs")
+.Range("B8").Value = "Start Menu Path is:-          " & objSFolders("StartMenu")
+.Range("B9").Value = "Send To Path is:-             " & objSFolders("SendTo")
+End With
+End Sub
