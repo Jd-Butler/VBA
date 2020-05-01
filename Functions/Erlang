@@ -1,3 +1,5 @@
+https://www.callcentrehelper.com/erlang-c-calculator-2473.htm
+
 Function utilisation(Intensity As Double, agents As Long) As Double
 'calculates utilisation or agent occupancy
  On Error GoTo utilisationerror
