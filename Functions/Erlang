@@ -1,0 +1,237 @@
+Function utilisation(Intensity As Double, agents As Long) As Double
+'calculates utilisation or agent occupancy
+ On Error GoTo utilisationerror
+    utilisation = Intensity / agents
+
+utilisationexit:
+    If utilisation < 0 Then utilisation = 0
+    If utilisation > 1 Then utilisation = 1
+Exit Function
+
+utilisationerror:
+    utilisation = 0
+    Resume utilisationexit
+End Function
+
+Function top_row(Intensity As Double, agents As Long) As Double
+'top_row row of Erlang-C Formula
+    top_row = (Intensity ^ agents) / Application.WorksheetFunction.Fact(agents)
+End Function
+
+Function bottom_row(Intensity As Double, agents As Long) As Double
+'calculates summed factorial element of Erlang-C formula
+Dim k As Long, max As Long, answer As Double
+
+k = 0
+max = agents - 1
+answer = 0
+
+For k = 0 To max
+answer = answer + ((Intensity ^ k) / Application.WorksheetFunction.Fact(k))
+Next k
+
+bottom_row = answer
+
+End Function
+
+Function ErlangC(Intensity As Double, agents As Long) As Double
+'Brings together elements of Erlang C formula top_row, Utilisation and bottom_row
+On Error GoTo ErlangCError
+ErlangC = (top_row(Intensity, agents)) / ((top_row(Intensity, agents)) + ((1 - utilisation(Intensity, agents)) * bottom_row(Intensity, agents)))
+
+ErlangCExit:
+    If ErlangC < 0 Then ErlangC = 0
+    If ErlangC > 1 Then ErlangC = 1
+Exit Function
+
+ErlangCError:
+    Resume ErlangCExit
+
+End Function
+
+Function AgentsReq(Calls As Long, Reporting_Period As Long, average_handling_time As Double, service_level_percent As Double, service_level_time As Double) As Long
+'calculates minimum agent numbers for required service level
+Dim agents As Long, minagents As Long, Intensity As Double
+On Error GoTo AgentsReqerror
+
+'stop function being performed during data validation
+If Reporting_Period < 5 _
+Or Reporting_Period > 1500 _
+Or average_handling_time < 1 _
+Or average_handling_time > 30000 _
+Or service_level_percent < 0.00001 _
+Or service_level_percent > 0.9998 _
+Or service_level_time < 1 _
+Or service_level_time > 30000 _
+Then
+Exit Function
+End If
+
+Intensity = (Calls / (Reporting_Period * 60)) * average_handling_time
+
+minagents = Int(Intensity)
+agents = minagents
+
+While ServiceLevel(Calls, Reporting_Period, average_handling_time, service_level_time, agents) < service_level_percent
+agents = agents + 1
+Wend
+
+AgentsReq = agents
+
+If AgentsReq > 600 Then
+MsgBox ("This caclulator only works up to 600 Agents.  For higher numbers, please use the online version of this calculator")
+End If
+
+AgentsReqexit:
+If Calls = 0 Then AgentsReq = 0
+Exit Function
+
+AgentsReqerror:
+Resume AgentsReqexit
+
+End Function
+
+
+Function AgentsFTE(Calls As Long, Reporting_Period As Long, average_handling_time As Double, service_level_percent As Double, service_level_time As Double, Shrinkage As Double) As Long
+'calculates minimum agent numbers for required service level
+Dim agents As Long, minagents As Long, Intensity As Double
+On Error GoTo AgentsFTEerror
+
+'stop function being performed during data validation
+If Reporting_Period < 5 _
+Or Reporting_Period > 1500 _
+Or average_handling_time < 1 _
+Or average_handling_time > 30000 _
+Or service_level_percent < 0.00001 _
+Or service_level_percent > 0.9998 _
+Or service_level_time < 1 _
+Or service_level_time > 30000 _
+Or Shrinkage < 0 _
+Or Shrinkage > 0.9998 _
+Then
+Exit Function
+End If
+
+Intensity = (Calls / (Reporting_Period * 60)) * average_handling_time
+
+minagents = Int(Intensity)
+'************agents can't be less than zero, to fix error when TI below 1*********************
+If minagents < 1 Then minagents = 1
+'***************************************************************************************
+agents = minagents
+
+While ServiceLevel(Calls, Reporting_Period, average_handling_time, service_level_time, agents) < service_level_percent
+agents = agents + 1
+Wend
+
+    If Shrinkage < 0 Then Shrinkage = 0
+    If Shrinkage > 1 Then Shrinkage = 0.99
+
+AgentsFTE = agents / (1 - Shrinkage)
+
+If AgentsFTE > 600 Then
+MsgBox ("This caclulator only works up to 600 Agents.  For higher numbers, please use the online version of this calculator")
+End If
+
+AgentsFTEexit:
+If Calls = 0 Then AgentsFTE = 0
+Exit Function
+
+AgentsFTEerror:
+Resume AgentsFTEexit
+
+End Function
+
+Function ServiceLevel(Calls As Long, Reporting_Period As Long, average_handling_time As Double, service_level_time As Double, agents As Long) As Double
+'calculation of service level
+Dim Intensity As Double
+On Error GoTo ServiceLevelerror
+
+'stop function being performed during data validation
+If Reporting_Period < 5 _
+Or Reporting_Period > 1500 _
+Or average_handling_time < 1 _
+Or average_handling_time > 30000 _
+Or service_level_time < 1 _
+Or service_level_time > 30000 _
+Then
+Exit Function
+End If
+
+Intensity = (Calls / (Reporting_Period * 60)) * average_handling_time
+
+'ServiceLevel = 1 - (ErlangC(Intensity, agents) * Exp(-(agents - Intensity) * service_level_time / average_handling_time))
+ServiceLevel = 1 - (ProbCallWaits(Calls, Reporting_Period, average_handling_time, agents) * Exp(-(agents - Intensity) * service_level_time / average_handling_time))
+
+ServiceLevelexit:
+If ServiceLevel > 1 Then ServiceLevel = 1
+If ServiceLevel < 0 Then ServiceLevel = 0
+Exit Function
+
+ServiceLevelerror:
+    ServiceLevel = 0
+    Resume ServiceLevelexit
+
+End Function
+    
+Function ProbCallWaitsOld(Calls As Long, Reporting_Period As Long, average_handling_time As Double, agents As Long) As Double
+
+End Function
+'Copyright Expedio Virtual Assistance Ltd 2008 and Call Centre Helper 2016
+'calculates minimum agent numbers for required service level
+'Dim Intensity As Double
+'On Error GoTo ProbCallWaitsOldError
+
+'Intensity = (Calls / (Reporting_Period * 60)) * average_handling_time
+
+'On Error GoTo ProbCallWaitsOldError
+
+'ProbCallWaitsOld = (top_row(Intensity, agents)) / ((top_row(Intensity, agents)) + ((1 - utilisation(Intensity, agents)) * bottom_row(Intensity, agents)))
+
+'ProbCallWaitsOldExit:
+'    If ProbCallWaitsOld < 0 Then ProbCallWaitsOld = 0
+'    If ProbCallWaitsOld > 1 Then ProbCallWaitsOld = 1
+'Exit Function
+
+'ProbCallWaitsOldError:
+'    Resume ProbCallWaitsOldExit
+
+
+End Function
+
+Function ProbCallWaits(Calls As Long, Reporting_Period As Long, average_handling_time As Double, agents As Long) As Double
+'calculates minimum agent numbers for required service level
+Dim Intensity, Occupancy, A_n, A_k, SumA_k As Double
+Dim k As Integer
+
+On Error GoTo ProbCallWaitsError
+
+Intensity = (Calls / (Reporting_Period * 60)) * average_handling_time
+
+Occupancy = Intensity / agents
+
+A_n = 1
+SumA_k = 0
+
+For k = agents To 0 Step -1
+  A_k = A_n * k / Intensity
+  SumA_k = SumA_k + A_k
+  A_n = A_k
+Next k
+
+ProbCallWaits = 1 / (1 + ((1 - Occupancy) * SumA_k))
+
+ProbCallWaitsExit:
+    If ProbCallWaits < 0 Then ProbCallWaits = 0
+    If ProbCallWaits > 1 Then ProbCallWaits = 1
+Exit Function
+
+ProbCallWaitsError:
+    Resume ProbCallWaitsExit
+
+
+End Function
+
+
+
+
