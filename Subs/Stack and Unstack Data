@@ -1,0 +1,59 @@
+Sub StackAndUnstackColumns()
+Dim rngFromArr() As Variant, rngToArr() As Variant, rngStackArr() As Variant
+Dim StackHeight As Long, ColumnsNeeded As Long
+Dim r As Long, c As Long, i As Long
+Dim StackType As String
+Dim WF As WorksheetFunction: Set WF = Application.WorksheetFunction
+
+On Error GoTo handler:
+
+rngFromArr = Application.InputBox("Select the column(s) to stack or unstack", "Select Range", Selection.CurrentRegion.Address, Type:=8).Value
+
+StackType = UCase(Application.InputBox("Do you want to define the number of columns or rows?", Default:="Columns", Type:=2))
+
+Select Case StackType
+    Case "ROWS"
+        StackHeight = Application.InputBox("How many rows should be in each column?", "Define Height", Type:=1)
+        ColumnsNeeded = WF.RoundUp(((UBound(rngFromArr, 1) * UBound(rngFromArr, 2)) / StackHeight), 0)
+        If ColumnsNeeded <> ((UBound(rngFromArr, 1) * UBound(rngFromArr, 2)) / StackHeight) Then
+            If MsgBox("The count of values in the array doesn't divide evenly into the number of rows specified. Modification might be needed" _
+            & vbNewLine & vbNewLine & "Press ok to continue or cancel to abort", vbOKCancel) = vbCancel Then
+                Exit Sub
+            End If
+        End If
+    Case "COLUMNS"
+        ColumnsNeeded = Application.InputBox("How many columns would you like to have?", "Define Columns", 1, Type:=1)
+        StackHeight = WF.RoundUp(((UBound(rngFromArr, 1) * UBound(rngFromArr, 2)) / ColumnsNeeded), 0)
+        If StackHeight <> ((UBound(rngFromArr, 1) * UBound(rngFromArr, 2)) / ColumnsNeeded) Then
+            If MsgBox("The count of values in the array doesn't divide evenly into the number of columns. Modification might be needed" _
+            & vbNewLine & vbNewLine & "Press ok to continue or cancel to abort", vbOKCancel) = vbCancel Then
+                Exit Sub
+            End If
+        End If
+End Select
+
+ReDim rngStackArr(1 To (UBound(rngFromArr, 1) * UBound(rngFromArr, 2)), 1 To 1)
+i = 1
+For c = 1 To UBound(rngFromArr, 2)
+    For r = 1 To UBound(rngFromArr, 1)
+        rngStackArr(i, 1) = rngFromArr(r, c)
+        i = i + 1
+    Next r
+Next c
+
+ReDim rngToArr(1 To ColumnsNeeded, 1 To StackHeight)
+i = 1
+For c = 1 To ColumnsNeeded
+    For r = 1 To StackHeight
+        If i <= UBound(rngStackArr, 1) Then
+            rngToArr(c, r) = rngStackArr(i, 1)
+        End If
+        i = i + 1
+    Next r
+Next c
+
+Application.InputBox("Select where you want the array to start", "Select Range", Type:=8).Resize(StackHeight, ColumnsNeeded) = Application.Transpose(rngToArr)
+
+handler:
+
+End Sub
