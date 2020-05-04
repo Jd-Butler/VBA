@@ -1,0 +1,61 @@
+Sub DataBarChart()
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Setup: There should be 4 columns total.
+'-The first column should be the var/person name
+'-The second should be the first measure.
+'-The third shoul be the second measure
+'-The fourth should be the total column.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Dim rngData As Range, rngMani As Range, cell As Range
+Dim DB As Databar
+Dim sumrange As Variant
+Set rngData = Application.InputBox("Select Data Range", "Select Range", Selection.CurrentRegion.Address, Type:=8)
+
+'format table
+With rngData
+    '.Cells.EntireColumn.AutoFit
+    .FormatConditions.Delete
+    .Resize(rngData.Rows.Count - 1, 1).Offset(1, 0).Columns(1).Borders(xlEdgeRight).Color = vbBlack
+    .Resize(rngData.Rows.Count - 1, 1).Offset(1, 0).Columns(2).Borders(xlEdgeRight).Weight = xlHairline
+    .Rows("2:" & rngData.Rows.Count).BorderAround , Weight:=xlMedium
+    .Interior.Pattern = xlSolid
+    .Rows(1).Font.Bold = True
+    .Resize(rngData.Rows.Count, rngData.Columns.Count - 1).Offset(0, 1).HorizontalAlignment = xlCenter
+    sumrange = "=sum(Sheet1!" & .Resize(rngData.Rows.Count - 1, 1).Offset(1, 0).Columns(4).Address & ")"
+End With
+
+'Set Totals Data Bars
+
+Set rngMani = rngData.Resize(rngData.Rows.Count - 1, 1).Offset(1, 0).Columns(4)
+Set DB = rngMani.FormatConditions.AddDatabar
+With DB
+    .BarFillType = xlDataBarFillSolid
+    .Direction = xlLTR
+    .MinPoint.Modify xlConditionValueNumber, 0
+    .MaxPoint.Modify xlConditionValueFormula, sumrange
+    .BarColor.Color = 11573124
+End With
+
+'Set Completed
+Set rngMani = rngData.Resize(rngData.Rows.Count - 1, 1).Offset(1, 0).Columns(3)
+Set DB = rngMani.FormatConditions.AddDatabar
+With DB
+    .BarFillType = xlDataBarFillSolid
+    .Direction = xlLTR
+    .MinPoint.Modify xlConditionValueNumber, 0
+    .MaxPoint.Modify xlConditionValueFormula, sumrange
+    .BarColor.Color = 14395790
+End With
+
+'set inprogress
+Set rngMani = rngData.Resize(rngData.Rows.Count - 1, 1).Offset(1, 0).Columns(2)
+Set DB = rngMani.FormatConditions.AddDatabar
+With DB
+    .BarFillType = xlDataBarFillSolid
+    .Direction = xlRTL
+    .MinPoint.Modify xlConditionValueNumber, 0
+    .MaxPoint.Modify xlConditionValueFormula, sumrange
+    .BarColor.Color = 15189684
+End With
+End Sub
