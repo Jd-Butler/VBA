@@ -1,0 +1,75 @@
+Option Explicit
+
+'please visit for our channel for more tutorials -- > https://www.youtube.com/vbaa2z
+'find connectionstring string for any db_ at -- > http://connectionstring.com/
+
+Public Const Joinx$ = " IN '"
+
+Public Function dbCon_Str() As String
+
+'-----------------------------
+'Thanks for downloading the code. 
+'Please visit our channel for a quick explainer on this code.
+'Feel free to update the code as per your need and also share with your friends.
+'Channel: Youtube.com/vbaa2z
+'Download free codes from http://vbaa2z.blogspot.com
+'Subscribe channel: youtube.com/vbaa2z
+'Author: L Pamai (vbaa2z.team@gmail.com)
+'-----------------------------
+
+dbCon_Str = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & dbPath & _
+"C:\My Documents\bulk_loader\finDB.accdb" & ";Jet OLEDB:Database Password=;"
+End Function
+
+Function xl_ext() As String
+xl_ext$ = Joinx$ & ThisWorkbook.FullName & "' 'Excel 8.0;'"
+End Function
+
+Function connection_center(sql$) As Long
+'youtube.com/vbaa2z
+Dim aff_rc As Long, cn As ADODB.Connection
+
+On Error GoTo err_hndler
+Set cn = New ADODB.Connection
+
+With cn
+.Open dbCon_Str
+.CursorLocation = adUseClient
+.Execute (sql$), aff_rc
+End With
+
+connection_center = aff_rc
+
+closeCon:
+
+If CBool(cn.State And adStateOpen) = True Then cn.Close
+Set cn = Nothing
+
+Exit Function
+
+err_hndler:
+connection_center = False
+Debug.Print Err.Description & Now()
+GoTo closeCon
+
+End Function
+
+Sub bulk_upload()
+
+'-----------------------------
+'Thanks for downloading the code. 
+'Please visit our channel for a quick explainer on this code.
+'Feel free to update the code as per your need and also share with your friends.
+'Channel: Youtube.com/vbaa2z
+'Download free codes from http://vbaa2z.blogspot.com
+'Author: L Pamai (vbaa2z.team@gmail.com)
+'-----------------------------
+
+Dim mysql As String
+
+Debug.Print Now()
+
+mysql = "INSERT into DailyT SELECT * FROM [LoadSh$] " & xl_ext & "WHERE (((LoadSh$.T_type) = 'Inflow') AND ((LoadSh$.Amount) > 80000));"
+Debug.Print connection_center(mysql)
+
+End Sub
