@@ -25,5 +25,6 @@ Sheet2.Range("A2").CopyFromRecordset rs
 
 Sheet2.Cells.Columns.AutoFit
 
+set rs = nothing
 cn.Close
 End Sub
